@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "habitat:block/potted_blowball"
+    }
+  }
+}
