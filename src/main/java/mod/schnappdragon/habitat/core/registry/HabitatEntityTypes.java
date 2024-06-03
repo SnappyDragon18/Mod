@@ -20,7 +20,7 @@ public class HabitatEntityTypes {
 
     public static final RegistryObject<EntityType<ThrownKabloomFruit>> KABLOOM_FRUIT = ENTITY_TYPES.register("kabloom_fruit", () -> EntityType.Builder.<ThrownKabloomFruit>of(ThrownKabloomFruit::new, MobCategory.MISC).sized(0.25f, 0.25f).clientTrackingRange(4).updateInterval(10).build("habitat:kabloom_fruit"));
     public static final RegistryObject<EntityType<HabitatBoat>> BOAT = ENTITY_TYPES.register("boat", () -> EntityType.Builder.<HabitatBoat>of(HabitatBoat::new, MobCategory.MISC).sized(1.375F, 0.5625F).clientTrackingRange(10).build("habitat:boat"));
-    public static final RegistryObject<EntityType<Pooka>> POOKA = ENTITY_TYPES.register("pooka", () -> EntityType.Builder.of(Pooka::new, MobCategory.CREATURE).sized(0.4F, 0.5F).clientTrackingRange(8).build("habitat:pooka"));
+    public static final RegistryObject<EntityType<Pooka>> POOKA = ENTITY_TYPES.register("pooka", () -> EntityType.Builder.of(Pooka::new, MobCategory.CREATURE).sized(0.67F, 0.83F).clientTrackingRange(8).build("habitat:pooka"));
     public static final RegistryObject<EntityType<Passerine>> PASSERINE = ENTITY_TYPES.register("passerine", () -> EntityType.Builder.of(Passerine::new, MobCategory.CREATURE).sized(0.5F, 0.5F).clientTrackingRange(8).build("habitat:passerine"));
 
     @SubscribeEvent

@@ -7,10 +7,7 @@ import mod.schnappdragon.habitat.common.entity.animal.Pooka;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
 
 public class PookaModel<T extends Pooka> extends EntityModel<T> {
@@ -19,8 +16,8 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
     private final ModelPart leftHaunch;
     private final ModelPart rightHaunch;
     private final ModelPart body;
-    private final ModelPart leftFrontLeg;
-    private final ModelPart rightFrontLeg;
+    private final ModelPart leftWing;
+    private final ModelPart rightWing;
     private final ModelPart head;
     private final ModelPart rightEar;
     private final ModelPart leftEar;
@@ -33,8 +30,8 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
         this.leftHaunch = part.getChild("left_haunch");
         this.rightHaunch = part.getChild("right_haunch");
         this.body = part.getChild("body");
-        this.leftFrontLeg = part.getChild("left_front_leg");
-        this.rightFrontLeg = part.getChild("right_front_leg");
+        this.leftWing = part.getChild("left_wing");
+        this.rightWing = part.getChild("right_wing");
         this.head = part.getChild("head");
         this.rightEar = part.getChild("right_ear");
         this.leftEar = part.getChild("left_ear");
@@ -44,24 +41,29 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
+
         partdefinition.addOrReplaceChild("left_hind_foot", CubeListBuilder.create().texOffs(26, 24).addBox(-1.0F, 5.5F, -3.7F, 2.0F, 1.0F, 7.0F), PartPose.offset(3.0F, 17.5F, 3.7F));
         partdefinition.addOrReplaceChild("right_hind_foot", CubeListBuilder.create().texOffs(8, 24).addBox(-1.0F, 5.5F, -3.7F, 2.0F, 1.0F, 7.0F), PartPose.offset(-3.0F, 17.5F, 3.7F));
+
         partdefinition.addOrReplaceChild("left_haunch", CubeListBuilder.create().texOffs(30, 15).addBox(-1.0F, 0.0F, 0.0F, 2.0F, 4.0F, 5.0F), PartPose.offsetAndRotation(3.0F, 17.5F, 3.7F, -0.34906584F, 0.0F, 0.0F));
         partdefinition.addOrReplaceChild("right_haunch", CubeListBuilder.create().texOffs(16, 15).addBox(-1.0F, 0.0F, 0.0F, 2.0F, 4.0F, 5.0F), PartPose.offsetAndRotation(-3.0F, 17.5F, 3.7F, -0.34906584F, 0.0F, 0.0F));
-        PartDefinition body = partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -2.0F, -10.0F, 6.0F, 5.0F, 10.0F), PartPose.offsetAndRotation(0.0F, 19.0F, 8.0F, -0.34906584F, 0.0F, 0.0F));
-        body.addOrReplaceChild("big_mushroom_x", CubeListBuilder.create().texOffs(0, 27).addBox(0.0F, -7.0F, -3.0F, 3.0F, 5.0F, 0.0F), PartPose.ZERO);
-        body.addOrReplaceChild("big_mushroom_z", CubeListBuilder.create().texOffs(0, 24).addBox(1.5F, -7.0F, -4.5F, 0.0F, 5.0F, 3.0F), PartPose.ZERO);
-        body.addOrReplaceChild("small_mushroom_x", CubeListBuilder.create().texOffs(22, 27).addBox(-3.0F, -6.0F, -7.0F, 3.0F, 4.0F, 0.0F), PartPose.ZERO);
-        body.addOrReplaceChild("small_mushroom_z", CubeListBuilder.create().texOffs(22, 24).addBox(-1.5F, -6.0F, -8.5F, 0.0F, 4.0F, 3.0F), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("left_front_leg", CubeListBuilder.create().texOffs(8, 15).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 7.0F, 2.0F), PartPose.offsetAndRotation(3.0F, 17.0F, -1.0F, -0.17453292F, 0.0F, 0.0F));
-        partdefinition.addOrReplaceChild("right_front_leg", CubeListBuilder.create().texOffs(0, 15).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 7.0F, 2.0F), PartPose.offsetAndRotation(-3.0F, 17.0F, -1.0F, -0.17453292F, 0.0F, 0.0F));
+
+        partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -2.0F, -10.0F, 6.0F, 5.0F, 10.0F), PartPose.offsetAndRotation(0.0F, 19.0F, 8.0F, -0.34906584F, 0.0F, 0.0F));
+
+        partdefinition.addOrReplaceChild("left_wing", CubeListBuilder.create().texOffs(34, 12).addBox(-7.0F, 0.0F, -5.0F, 7.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-3.0F, -7.0F, 1.0F, -0.7854F, 0.3927F, 0.0F));
+        partdefinition.addOrReplaceChild("right_wing", CubeListBuilder.create().texOffs(34, 12).mirror().addBox(0.0F, 0.0F, -5.0F, 7.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(3.0F, -7.0F, 1.0F, -0.7854F, -0.3927F, 0.0F));
+
         PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5.0F, 4.0F, 5.0F), PartPose.offset(0.0F, 16.0F, -1.0F));
         head.addOrReplaceChild("nose", CubeListBuilder.create().texOffs(32, 9).addBox(-0.5F, -2.5F, -5.5F, 1.0F, 1.0F, 1.0F), PartPose.ZERO);
-        PartDefinition rightEar = partdefinition.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(0, 0).addBox(-3.5F, -10.0F, -1.0F, 3.0F, 5.0F, 1.0F), PartPose.offsetAndRotation(0.0F, 16.0F, -1.0F, 0.0F, -0.2617994F, 0.0F));
-        rightEar.addOrReplaceChild("right_ear_stalk", CubeListBuilder.create().texOffs(1, 6).addBox(-3.5F, -5.0F, -0.5F, 3.0F, 1.0F, 0.0F), PartPose.ZERO);
-        PartDefinition leftEar = partdefinition.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(22, 0).addBox(0.5F, -10.0F, -1.0F, 3.0F, 5.0F, 1.0F), PartPose.offsetAndRotation(0.0F, 16.0F, -1.0F, 0.0F, 0.2617994F, 0.0F));
-        leftEar.addOrReplaceChild("left_ear_stalk", CubeListBuilder.create().texOffs(1, 6).addBox(0.5F, -5.0F, -0.5F, 3.0F, 1.0F, 0.0F), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(52, 0).addBox(-1.5F, -1.5F, 0.0F, 3.0F, 3.0F, 2.0F), PartPose.offsetAndRotation(0.0F, 20.0F, 7.0F, -0.3490659F, 0.0F, 0.0F));
+
+        PartDefinition rightEar = partdefinition.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(54, 14).addBox(-3.5F, -12.0F, -1.0F, 3.0F, 6.0F, 2.0F), PartPose.offsetAndRotation(0.0F, 16.0F, -1.0F, 0.0F, -0.2617994F, 0.0F));
+        rightEar.addOrReplaceChild("right_ear_stalk", CubeListBuilder.create().texOffs(52, 0).addBox(-3.5F, -6.0F, -0.5F, 3.0F, 2.0F, 0.0F), PartPose.ZERO);
+
+        PartDefinition leftEar = partdefinition.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(54, 14).mirror().addBox(0.5F, -12.0F, -1.0F, 3.0F, 6.0F, 2.0F), PartPose.offsetAndRotation(0.0F, 16.0F, -1.0F, 0.0F, 0.2617994F, 0.0F));
+        leftEar.addOrReplaceChild("left_ear_stalk", CubeListBuilder.create().texOffs(52, 0).mirror().addBox(0.5F, -6.0F, -0.5F, 3.0F, 2.0F, 0.0F), PartPose.ZERO);
+
+        partdefinition.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(52, 7).addBox(-1.5F, -1.5F, 0.0F, 3.0F, 3.0F, 2.0F), PartPose.offsetAndRotation(0.0F, 20.0F, 7.0F, -0.3490659F, 0.0F, 0.0F));
+
         return LayerDefinition.create(meshdefinition, 64, 32);
     }
 
@@ -77,13 +79,13 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
             poseStack.pushPose();
             poseStack.scale(0.4F, 0.4F, 0.4F);
             poseStack.translate(0.0D, 2.25D, 0.0D);
-            ImmutableList.of(this.leftRearFoot, this.rightRearFoot, this.leftHaunch, this.rightHaunch, this.body, this.leftFrontLeg, this.rightFrontLeg, this.tail).forEach((part) -> {
+            ImmutableList.of(this.leftRearFoot, this.rightRearFoot, this.leftHaunch, this.rightHaunch, this.body, this.leftWing, this.rightWing, this.tail).forEach((part) -> {
                 part.render(poseStack, consumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             });
             poseStack.popPose();
         } else {
             poseStack.pushPose();
-            ImmutableList.of(this.leftRearFoot, this.rightRearFoot, this.leftHaunch, this.rightHaunch, this.body, this.leftFrontLeg, this.rightFrontLeg, this.head, this.rightEar, this.leftEar, this.tail).forEach((part) -> {
+            ImmutableList.of(this.leftRearFoot, this.rightRearFoot, this.leftHaunch, this.rightHaunch, this.body, this.leftWing, this.rightWing, this.head, this.rightEar, this.leftEar, this.tail).forEach((part) -> {
                 part.render(poseStack, consumer, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             });
             poseStack.popPose();
@@ -103,11 +105,19 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
         this.rightHaunch.xRot = this.leftHaunch.xRot;
         this.leftRearFoot.xRot = this.jumpRotation * 50.0F * ((float) Math.PI / 180F);
         this.rightRearFoot.xRot = this.leftRearFoot.xRot;
-        this.leftFrontLeg.xRot = (this.jumpRotation * -40.0F - 11.0F) * ((float) Math.PI / 180F);
-        this.rightFrontLeg.xRot = this.leftFrontLeg.xRot;
+
+        if (pooka.onGround()) {
+            this.leftWing.zRot = 0.0F;
+            this.rightWing.zRot = 0.0F;
+        } else {
+            this.rightWing.zRot = Mth.sin(ageInTicks * 0.6F);
+            this.leftWing.zRot = -this.rightWing.zRot;
+        }
     }
 
     public void prepareMobModel(Pooka pooka, float limbSwing, float limbSwingAmount, float partialTick) {
+        this.rightWing.y = 18.0F;
+        this.leftWing.y = 18.0F;
         this.jumpRotation = Mth.sin(pooka.getJumpCompletion(partialTick) * (float) Math.PI);
     }
 }

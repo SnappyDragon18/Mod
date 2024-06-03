@@ -1,5 +1,6 @@
 package mod.schnappdragon.habitat.common.entity.animal;
 
+import mod.schnappdragon.habitat.core.registry.HabitatParticleTypes;
 import mod.schnappdragon.habitat.core.registry.HabitatSoundEvents;
 import mod.schnappdragon.habitat.core.tags.HabitatItemTags;
 import net.minecraft.core.BlockPos;
@@ -42,22 +43,22 @@ public class Pooka extends Animal {
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level()));
-        this.goalSelector.addGoal(2, new BreedGoal(this, 0.8D));
-        this.goalSelector.addGoal(3, new TemptGoal(this, 1.0D, Ingredient.of(HabitatItemTags.POOKA_FOOD), false));
-        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.6D));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.D));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(HabitatItemTags.POOKA_FOOD), false));
+        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(11, new LookAtPlayerGoal(this, Player.class, 10.0F));
     }
 
     protected float getJumpPower() {
         float f = 0.6F;
-        if (this.horizontalCollision || this.moveControl.hasWanted() && this.moveControl.getWantedY() > this.getY() + 0.5D) {
+        if (this.horizontalCollision || this.moveControl.hasWanted() && this.moveControl.getWantedY() > this.getY()) {
             f = 1.0F;
         }
 
         Path path = this.navigation.getPath();
         if (path != null && !path.isDone()) {
             Vec3 vec3 = path.getNextEntityPos(this);
-            if (vec3.y > this.getY() + 0.5D) {
+            if (vec3.y > this.getY()) {
                 f = 1.0F;
             }
         }
@@ -179,6 +180,16 @@ public class Pooka extends Animal {
             this.setJumping(false);
         }
 
+        Vec3 vec3 = this.getDeltaMovement();
+        if (!this.onGround() && vec3.y < 0.0D) {
+            this.setDeltaMovement(vec3.multiply(1.0D, 0.6D, 1.0D));
+        }
+
+        if (this.level().isClientSide) {
+            if (this.random.nextInt(16) == 0) {
+                this.level().addParticle(HabitatParticleTypes.FAIRY_RING_SPORE.get(), this.getRandomX(0.5D), this.getRandomY(), this.getRandomZ(0.5D), this.random.nextGaussian() * (0.01D), 0.0D, this.random.nextGaussian() * (0.01D));
+            }
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -257,7 +268,6 @@ public class Pooka extends Animal {
                 Pooka.this.startJumping();
                 this.jump = false;
             }
-
         }
     }
 
