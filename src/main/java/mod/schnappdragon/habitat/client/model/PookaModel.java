@@ -53,8 +53,7 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
         partdefinition.addOrReplaceChild("left_wing", CubeListBuilder.create().texOffs(34, 12).addBox(-7.0F, 0.0F, -5.0F, 7.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-3.0F, -7.0F, 1.0F, -0.7854F, 0.3927F, 0.0F));
         partdefinition.addOrReplaceChild("right_wing", CubeListBuilder.create().texOffs(34, 12).mirror().addBox(0.0F, 0.0F, -5.0F, 7.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(3.0F, -7.0F, 1.0F, -0.7854F, -0.3927F, 0.0F));
 
-        PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5.0F, 4.0F, 5.0F), PartPose.offset(0.0F, 16.0F, -1.0F));
-        head.addOrReplaceChild("nose", CubeListBuilder.create().texOffs(32, 9).addBox(-0.5F, -2.5F, -5.5F, 1.0F, 1.0F, 1.0F), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5.0F, 4.0F, 5.0F), PartPose.offset(0.0F, 16.0F, -1.0F));
 
         PartDefinition rightEar = partdefinition.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(54, 14).addBox(-3.5F, -12.0F, -1.0F, 3.0F, 6.0F, 2.0F), PartPose.offsetAndRotation(0.0F, 16.0F, -1.0F, 0.0F, -0.2617994F, 0.0F));
         rightEar.addOrReplaceChild("right_ear_stalk", CubeListBuilder.create().texOffs(52, 0).addBox(-3.5F, -6.0F, -0.5F, 3.0F, 2.0F, 0.0F), PartPose.ZERO);
@@ -110,7 +109,7 @@ public class PookaModel<T extends Pooka> extends EntityModel<T> {
             this.leftWing.zRot = 0.0F;
             this.rightWing.zRot = 0.0F;
         } else {
-            this.rightWing.zRot = Mth.sin(ageInTicks * 0.6F);
+            this.rightWing.zRot = 0.5F + Mth.sin(ageInTicks * 0.6F);
             this.leftWing.zRot = -this.rightWing.zRot;
         }
     }
