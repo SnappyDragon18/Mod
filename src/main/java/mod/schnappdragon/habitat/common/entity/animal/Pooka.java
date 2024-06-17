@@ -5,11 +5,16 @@ import mod.schnappdragon.habitat.core.registry.HabitatSoundEvents;
 import mod.schnappdragon.habitat.core.tags.HabitatItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -17,17 +22,18 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.JumpControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class Pooka extends Animal {
+public class Pooka extends TamableAnimal {
+    private static final EntityDataAccessor<Integer> DATA_SOCKS_COLOR = SynchedEntityData.defineId(Wolf.class, EntityDataSerializers.INT);
     private int jumpTicks;
     private int jumpDuration;
     public boolean wasOnGround;
@@ -41,12 +47,41 @@ public class Pooka extends Animal {
     }
 
     protected void registerGoals() {
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.25D));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level()));
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.D));
-        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(HabitatItemTags.POOKA_FOOD), false));
-        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(11, new LookAtPlayerGoal(this, Player.class, 10.0F));
+        this.goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.0D, 5.0F, 1.0F, true));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 10.0F));
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 3.0D).add(Attributes.MOVEMENT_SPEED, 0.3F);
+    }
+
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_SOCKS_COLOR, DyeColor.RED.getId());
+    }
+
+    public DyeColor getSocksColor() {
+        return DyeColor.byId(this.entityData.get(DATA_SOCKS_COLOR));
+    }
+
+    public void setSocksColor(DyeColor pCollarColor) {
+        this.entityData.set(DATA_SOCKS_COLOR, pCollarColor.getId());
+    }
+
+    public void addAdditionalSaveData(CompoundTag pCompound) {
+        pCompound.putByte("SocksColor", (byte) this.getSocksColor().getId());
+    }
+    public void readAdditionalSaveData(CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+
+        if (pCompound.contains("CollarColor", 99)) {
+            this.setSocksColor(DyeColor.byId(pCompound.getInt("SocksColor")));
+        }
     }
 
     protected float getJumpPower() {
@@ -192,22 +227,74 @@ public class Pooka extends Animal {
         }
     }
 
-    public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 3.0D).add(Attributes.MOVEMENT_SPEED, 0.3F);
-    }
+    public InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        Item item = itemstack.getItem();
 
+        if (this.level().isClientSide) {
+            boolean flag = this.isOwnedBy(pPlayer) || this.isTame() || this.isFood(itemstack);
+            return flag ? InteractionResult.CONSUME : InteractionResult.PASS;
+        } else if (this.isTame()) {
+            if (this.isFood(itemstack) && this.getHealth() < this.getMaxHealth()) {
+                this.heal((float)itemstack.getFoodProperties(this).getNutrition());
+                if (!pPlayer.getAbilities().instabuild) {
+                    itemstack.shrink(1);
+                }
+
+                this.gameEvent(GameEvent.EAT, this);
+                return InteractionResult.SUCCESS;
+            } else {
+                if (item instanceof DyeItem) {
+                    DyeItem dyeitem = (DyeItem)item;
+                    if (this.isOwnedBy(pPlayer)) {
+                        DyeColor dyecolor = dyeitem.getDyeColor();
+                        if (dyecolor != this.getSocksColor()) {
+                            this.setSocksColor(dyecolor);
+                            if (!pPlayer.getAbilities().instabuild) {
+                                itemstack.shrink(1);
+                            }
+
+                            return InteractionResult.SUCCESS;
+                        }
+
+                        return super.mobInteract(pPlayer, pHand);
+                    }
+                }
+
+                InteractionResult interactionresult = super.mobInteract(pPlayer, pHand);
+                if ((!interactionresult.consumesAction() || this.isBaby()) && this.isOwnedBy(pPlayer)) {
+                    this.setOrderedToSit(!this.isOrderedToSit());
+                    this.jumping = false;
+                    this.navigation.stop();
+                    return InteractionResult.SUCCESS;
+                } else {
+                    return interactionresult;
+                }
+            }
+        } else if (this.isFood(itemstack)) {
+            if (!pPlayer.getAbilities().instabuild) {
+                itemstack.shrink(1);
+            }
+
+            if (this.random.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, pPlayer)) {
+                this.tame(pPlayer);
+                this.navigation.stop();
+                this.setOrderedToSit(true);
+                this.level().broadcastEntityEvent(this, (byte)7);
+            } else {
+                this.level().broadcastEntityEvent(this, (byte)6);
+            }
+
+            return InteractionResult.SUCCESS;
+        } else {
+            return super.mobInteract(pPlayer, pHand);
+        }
+    }
+    
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
         return null;
-    }
-
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-    }
-
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
     }
 
     protected SoundEvent getJumpSound() {

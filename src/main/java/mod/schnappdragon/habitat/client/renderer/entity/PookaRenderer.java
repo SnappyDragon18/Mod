@@ -2,6 +2,7 @@ package mod.schnappdragon.habitat.client.renderer.entity;
 
 import mod.schnappdragon.habitat.client.model.PookaModel;
 import mod.schnappdragon.habitat.client.renderer.HabitatModelLayers;
+import mod.schnappdragon.habitat.client.renderer.entity.layers.PookaGlowLayer;
 import mod.schnappdragon.habitat.common.entity.animal.Pooka;
 import mod.schnappdragon.habitat.core.Habitat;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -14,6 +15,7 @@ public class PookaRenderer extends MobRenderer<Pooka, PookaModel<Pooka>> {
 
     public PookaRenderer(EntityRendererProvider.Context context) {
         super(context, new PookaModel<>(context.bakeLayer(HabitatModelLayers.POOKA)), 0.3F);
+        this.addLayer(new PookaGlowLayer<>(this));
     }
 
     protected int getBlockLightLevel(Pooka entityIn, BlockPos partialTicks) {
